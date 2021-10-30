@@ -44,7 +44,7 @@ def main():
     ## please change the column name 'Questions' -> The column name in your file 
     for idx, row in df.iterrows():
         if type(row['Questions']) == type(''):
-        corpus_sentences.add(row['Questions'])
+            corpus_sentences.add(row['Questions'])
 
     ### lists unique sentences ###
     corpus_sentences = list(corpus_sentences)
