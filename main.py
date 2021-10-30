@@ -29,7 +29,6 @@ def main():
     file_path = 'vision boards.xlsx'
     uploaded_file = st.file_uploader("Upload Files",type=['csv'])
     if uploaded_file is not None:
-        if uploaded_file is not None:
             df = pd.read_csv(uploaded_file)
             st.write(df)
     else: 
@@ -79,8 +78,7 @@ def main():
         for sentence_id in cluster:
             clusters_df = clusters_df.append({'Cluster':title, 'Question':corpus_sentences[sentence_id]},ignore_index=True)
 
-
+    clusters_df
 if __name__ == '__main__':
 	main()
 
-clusters_df
