@@ -13,7 +13,7 @@ import csv
 import time
 corpus_sentences = set()
 import pandas as pd
-
+import streamlit as st
 
 # Model used for computing sentence embeddings. 
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -21,7 +21,9 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 
 ### please select a file to load ####
 file_path = 'vision boards.xlsx'
-df = pd.read_excel(file_path)
+uploaded_file = st.file_uploader("Upload Files",type=['xlsx','csv'])
+if uploaded_file is not None:
+        df = pd.read_excel(uploaded_file)
 
 ## remove null records 
 df.dropna()
@@ -37,7 +39,7 @@ corpus_sentences = list(corpus_sentences)
 print("Encode the corpus. This might take a while")
 corpus_embeddings = model.encode(corpus_sentences, batch_size=1, show_progress_bar=True, convert_to_tensor=True)
 
-
+print(ccffffc)
 print("Start clustering")
 start_time = time.time()
 
