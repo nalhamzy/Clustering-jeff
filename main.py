@@ -11,62 +11,76 @@ from sentence_transformers import SentenceTransformer, util
 import os
 import csv
 import time
-corpus_sentences = set()
 import pandas as pd
 import streamlit as st
 
+
+
+
 # Model used for computing sentence embeddings. 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+@st.cache
+def load_model():
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    return model 
 
-df = []
-### please select a file to load ####
-file_path = 'vision boards.xlsx'
-uploaded_file = st.file_uploader("Upload Files",type=['xlsx','csv'])
-if uploaded_file is not None:
-       if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-        st.write(df)
-## remove null records 
-df.dropna()
+def main():
+    df = []
+    ### please select a file to load ####
+    file_path = 'vision boards.xlsx'
+    uploaded_file = st.file_uploader("Upload Files",type=['csv'])
+    if uploaded_file is not None:
+        if uploaded_file is not None:
+            df = pd.read_csv(uploaded_file)
+            st.write(df)
+    else: 
+        return 
+    ## remove null records 
+    
+    df.dropna()
+    model = load_model()
+    corpus_sentences = set()
 
-### read the questions from the dataframe ###
-## please change the column name 'Questions' -> The column name in your file 
-for idx, row in df.iterrows():
-    if type(row['Questions']) == type(''):
-      corpus_sentences.add(row['Questions'])
+    ### read the questions from the dataframe ###
+    ## please change the column name 'Questions' -> The column name in your file 
+    for idx, row in df.iterrows():
+        if type(row['Questions']) == type(''):
+        corpus_sentences.add(row['Questions'])
 
-### lists unique sentences ###
-corpus_sentences = list(corpus_sentences)
-print("Encode the corpus. This might take a while")
-corpus_embeddings = model.encode(corpus_sentences, batch_size=1, show_progress_bar=True, convert_to_tensor=True)
+    ### lists unique sentences ###
+    corpus_sentences = list(corpus_sentences)
+    print("Encode the corpus. This might take a while")
+    corpus_embeddings = model.encode(corpus_sentences, batch_size=1, show_progress_bar=True, convert_to_tensor=True)
 
-print(ccffffc)
-print("Start clustering")
-start_time = time.time()
+    print("Start clustering")
+    start_time = time.time()
 
-#Two parameters to tune:
-#min_cluster_size: Only consider cluster that have at least 2 elements
-#threshold: Consider sentence pairs with a cosine-similarity larger than threshold as similar
+    #Two parameters to tune:
+    #min_cluster_size: Only consider cluster that have at least 2 elements
+    #threshold: Consider sentence pairs with a cosine-similarity larger than threshold as similar
 
-clusters = util.community_detection(corpus_embeddings, min_community_size=2, threshold=0.95, init_max_size=50)
+    clusters = util.community_detection(corpus_embeddings, min_community_size=2, threshold=0.95, init_max_size=50)
 
-print("Clustering done after {:.2f} sec".format(time.time() - start_time))
+    print("Clustering done after {:.2f} sec".format(time.time() - start_time))
 
-## function used to extract the shortest sentence from the given cluster ##
-def get_shortest_title_cluster(cluster, corpus_sentences):
-    title = corpus_sentences[cluster[0]]
-    for idx in cluster:
-        if len(corpus_sentences[idx]) < len(title):
-            title = corpus_sentences[idx]
-    return title
+    ## function used to extract the shortest sentence from the given cluster ##
+    def get_shortest_title_cluster(cluster, corpus_sentences):
+        title = corpus_sentences[cluster[0]]
+        for idx in cluster:
+            if len(corpus_sentences[idx]) < len(title):
+                title = corpus_sentences[idx]
+        return title
 
-### prepare a new dataframe to store the results ###
-clusters_df = pd.DataFrame(columns=['Cluster','Question'])
-for i, cluster in enumerate(clusters):
-    cluster_name = "Cluster {}".format(i)
-    title = get_shortest_title_cluster(cluster, corpus_sentences)
-    print("cluster: {title}".format(title = title))
-    for sentence_id in cluster:
-        clusters_df = clusters_df.append({'Cluster':title, 'Question':corpus_sentences[sentence_id]},ignore_index=True)
+    ### prepare a new dataframe to store the results ###
+    clusters_df = pd.DataFrame(columns=['Cluster','Question'])
+    for i, cluster in enumerate(clusters):
+        cluster_name = "Cluster {}".format(i)
+        title = get_shortest_title_cluster(cluster, corpus_sentences)
+        print("cluster: {title}".format(title = title))
+        for sentence_id in cluster:
+            clusters_df = clusters_df.append({'Cluster':title, 'Question':corpus_sentences[sentence_id]},ignore_index=True)
+
+
+if __name__ == '__main__':
+	main()
 
 clusters_df
