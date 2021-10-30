@@ -23,9 +23,9 @@ df = []
 file_path = 'vision boards.xlsx'
 uploaded_file = st.file_uploader("Upload Files",type=['xlsx','csv'])
 if uploaded_file is not None:
-        st.write(uploaded_file)
-        df = pd.read_excel(uploaded_file['file_name'])
-
+       if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        st.write(df)
 ## remove null records 
 df.dropna()
 
