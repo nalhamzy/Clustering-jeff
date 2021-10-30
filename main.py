@@ -35,8 +35,8 @@ def main():
     df = []
     ### please select a file to load ####
     file_path = 'vision boards.xlsx'
-    threshold = st.slider('Select Threshold',0.0, 1.0,0.95,0.05)
-    min_community_size = st.slider('Minimum size of a cluster Threshold',1, 100,2,1)
+    threshold = st.slider('Similarity Threshold:',0.0, 1.0,0.95,0.05)
+    min_community_size = st.slider('Minimum size of a cluster:',1, 100,2,1)
 
     uploaded_file = st.file_uploader("Upload Files",type=['csv','xlsx'])
     if uploaded_file is not None:
