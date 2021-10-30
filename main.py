@@ -18,12 +18,13 @@ import streamlit as st
 # Model used for computing sentence embeddings. 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-
+df = []
 ### please select a file to load ####
 file_path = 'vision boards.xlsx'
 uploaded_file = st.file_uploader("Upload Files",type=['xlsx','csv'])
 if uploaded_file is not None:
-        df = pd.read_excel(uploaded_file)
+        st.write(uploaded_file)
+        df = pd.read_excel(uploaded_file['file_name'])
 
 ## remove null records 
 df.dropna()
