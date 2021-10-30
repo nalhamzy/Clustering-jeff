@@ -18,7 +18,7 @@ import streamlit as st
 
 
 # Model used for computing sentence embeddings. 
-@st.cache
+@st.cache(persist=True, allow_output_mutation=True)
 def load_model():
     model = SentenceTransformer('all-MiniLM-L6-v2')
     return model 
@@ -27,12 +27,21 @@ def main():
     df = []
     ### please select a file to load ####
     file_path = 'vision boards.xlsx'
-    uploaded_file = st.file_uploader("Upload Files",type=['csv'])
+    threshold = st.slider('Select Threshold',0.0, 1.0,0.95,0.05)
+    min_community_size = st.slider('Minimum size of a cluster Threshold',1, 100,2,1)
+
+    uploaded_file = st.file_uploader("Upload Files",type=['csv','xlsx'])
     if uploaded_file is not None:
-            df = pd.read_csv(uploaded_file)
+            if "csv" in uploaded_file.name:
+                df = pd.read_csv(uploaded_file)
+            elif "xlsx" in uploaded_file.name:
+                df = pd.read_excel(uploaded_file)
             st.write(df)
     else: 
         return 
+    
+
+
     ## remove null records 
     
     df.dropna()
@@ -57,7 +66,7 @@ def main():
     #min_cluster_size: Only consider cluster that have at least 2 elements
     #threshold: Consider sentence pairs with a cosine-similarity larger than threshold as similar
 
-    clusters = util.community_detection(corpus_embeddings, min_community_size=2, threshold=0.95, init_max_size=50)
+    clusters = util.community_detection(corpus_embeddings, min_community_size=2, threshold=threshold, init_max_size=min_community_size)
 
     print("Clustering done after {:.2f} sec".format(time.time() - start_time))
 
