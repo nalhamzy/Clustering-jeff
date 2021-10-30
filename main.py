@@ -23,6 +23,14 @@ def load_model():
     model = SentenceTransformer('all-MiniLM-L6-v2')
     return model 
 
+
+@st.cache
+def convert_df(df):
+     # IMPORTANT: Cache the conversion to prevent computation on every rerun
+     return df.to_csv().encode('utf-8')
+
+
+
 def main():
     df = []
     ### please select a file to load ####
@@ -88,6 +96,14 @@ def main():
             clusters_df = clusters_df.append({'Cluster':title, 'Question':corpus_sentences[sentence_id]},ignore_index=True)
 
     clusters_df
+    csv = convert_df(clusters_df)
+
+    st.download_button(
+        label="Download data as CSV",
+        data=csv,
+        file_name='clusters.csv',
+        mime='text/csv',
+    )
 if __name__ == '__main__':
 	main()
 
