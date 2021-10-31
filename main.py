@@ -37,7 +37,7 @@ def main():
     file_path = 'vision boards.xlsx'
     threshold = st.slider('Similarity Threshold:',0.0, 1.0,0.95,0.05)
     min_community_size = st.slider('Minimum size of a cluster:',1, 100,2,1)
-
+    max_size = st.slider('Max size of a cluster:',0, 200,50,1)
     uploaded_file = st.file_uploader("Upload Files",type=['csv','xlsx'])
     if uploaded_file is not None:
             if "csv" in uploaded_file.name:
@@ -58,9 +58,11 @@ def main():
 
     ### read the questions from the dataframe ###
     ## please change the column name 'Questions' -> The column name in your file 
+    column = df.columns[0]
     for idx, row in df.iterrows():
-        if type(row['Questions']) == type(''):
-            corpus_sentences.add(row['Questions'])
+        
+        if type(row[column]) == type(''):
+            corpus_sentences.add(row[column])
 
     ### lists unique sentences ###
     corpus_sentences = list(corpus_sentences)
@@ -74,7 +76,7 @@ def main():
     #min_cluster_size: Only consider cluster that have at least 2 elements
     #threshold: Consider sentence pairs with a cosine-similarity larger than threshold as similar
 
-    clusters = util.community_detection(corpus_embeddings, min_community_size=2, threshold=threshold, init_max_size=min_community_size)
+    clusters = util.community_detection(corpus_embeddings, min_community_size=min_community_size, threshold=threshold, init_max_size=max_size)
 
     print("Clustering done after {:.2f} sec".format(time.time() - start_time))
 
@@ -88,12 +90,21 @@ def main():
 
     ### prepare a new dataframe to store the results ###
     clusters_df = pd.DataFrame(columns=['Cluster','Question'])
+    num_clusters = 0
     for i, cluster in enumerate(clusters):
         cluster_name = "Cluster {}".format(i)
         title = get_shortest_title_cluster(cluster, corpus_sentences)
         print("cluster: {title}".format(title = title))
         for sentence_id in cluster:
             clusters_df = clusters_df.append({'Cluster':title, 'Question':corpus_sentences[sentence_id]},ignore_index=True)
+        num_clusters += 1
+    missing_questions_title = 'unspecified cluster'
+    for s in corpus_sentences:
+         res = clusters_df.loc[clusters_df['Question'] == s]
+         if len(res) < 1: 
+             clusters_df = clusters_df.append({'Cluster':missing_questions_title, 'Question':s},ignore_index=True)
+
+    st.text('# Clusters: {num_clusters}'.format(num_clusters=len(clusters_df['Cluster'].unique())))
 
     clusters_df
     csv = convert_df(clusters_df)
