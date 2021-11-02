@@ -42,7 +42,7 @@ def main():
 
 
 
-    sentences = st.text_area("sentences", height=500)
+    sentences = st.text_area("sentences", height=300)
 
     if sentences != None:
         sentences = sentences.splitlines()
