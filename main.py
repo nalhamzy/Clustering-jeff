@@ -48,7 +48,7 @@ def main():
         sentences = sentences.splitlines()
         df = pd.DataFrame(columns=['Questions'])
         for sentence in sentences:
-            df.append({'Questions':sentence})
+            df.append({'Questions':sentence},ignore_index=True)
 
     if uploaded_file is not None:
             if "csv" in uploaded_file.name:
