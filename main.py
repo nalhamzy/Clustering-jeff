@@ -60,7 +60,7 @@ def main():
         return 
     
     
-
+    df
     ## remove null records 
     
     df.dropna()
