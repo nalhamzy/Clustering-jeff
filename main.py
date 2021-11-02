@@ -46,10 +46,9 @@ def main():
 
     if sentences != None:
         sentences = sentences.splitlines()
-        st.write(sentences[:5])
         df = pd.DataFrame(columns=['Questions'])
         for sentence in sentences:
-            df.append({'Questions':sentence},ignore_index=True)
+            df = df.append({'Questions':sentence},ignore_index=True)
 
     if uploaded_file is not None:
             if "csv" in uploaded_file.name:
@@ -61,7 +60,7 @@ def main():
         return 
     
     
-    df
+    
     ## remove null records 
     
     df.dropna()
