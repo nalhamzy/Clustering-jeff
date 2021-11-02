@@ -36,19 +36,30 @@ def main():
     ### please select a file to load ####
     file_path = 'vision boards.xlsx'
     threshold = st.slider('Similarity Threshold:',0.0, 1.0,0.95,0.05)
-    min_community_size = st.slider('Minimum size of a cluster:',1, 100,2,1)
-    max_size = st.slider('Max size of a cluster:',0, 200,50,1)
+    min_community_size = st.slider('Minimum size of a cluster:',1, 10,2,1)
+    max_size = 50
     uploaded_file = st.file_uploader("Upload Files",type=['csv','xlsx'])
+
+
+
+    sentences = st.text_area("sentences", height=500)
+
+    if sentences != None:
+        sentences = sentences.splitlines()
+        df = pd.DataFrame(columns=['Questions'])
+        for sentence in sentences:
+            df.append({'Questions':sentence})
+
     if uploaded_file is not None:
             if "csv" in uploaded_file.name:
                 df = pd.read_csv(uploaded_file)
             elif "xlsx" in uploaded_file.name:
                 df = pd.read_excel(uploaded_file)
             st.write(df)
-    else: 
+    if uploaded_file == None and sentences == None or len(sentences) < 1:
         return 
     
-
+    
 
     ## remove null records 
     
