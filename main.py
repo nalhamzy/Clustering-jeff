@@ -46,6 +46,7 @@ def main():
 
     if sentences != None:
         sentences = sentences.splitlines()
+        print(sentences[:5])
         df = pd.DataFrame(columns=['Questions'])
         for sentence in sentences:
             df.append({'Questions':sentence},ignore_index=True)
