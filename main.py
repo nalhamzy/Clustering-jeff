@@ -13,7 +13,7 @@ import csv
 import time
 import pandas as pd
 import streamlit as st
-
+import numpy as np
 
 
 
@@ -98,13 +98,19 @@ def main():
             if len(corpus_sentences[idx]) < len(title):
                 title = corpus_sentences[idx]
         return title
+    def get_median_title_cluster(cluster, corpus_sentences):
+        title_lens = [len(corpus_sentences[i]) for i in cluster]
+        title_lens = np.argsort(title_lens)
+        midx = int(len(title_lens)/2)
+        return corpus_sentences[midx]
+        
 
     ### prepare a new dataframe to store the results ###
     clusters_df = pd.DataFrame(columns=['Cluster','Question'])
     num_clusters = 0
     for i, cluster in enumerate(clusters):
         cluster_name = "Cluster {}".format(i)
-        title = get_shortest_title_cluster(cluster, corpus_sentences)
+        title = get_median_title_cluster(cluster, corpus_sentences)
         print("cluster: {title}".format(title = title))
         for sentence_id in cluster:
             clusters_df = clusters_df.append({'Cluster':title, 'Question':corpus_sentences[sentence_id]},ignore_index=True)
