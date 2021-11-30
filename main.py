@@ -26,7 +26,7 @@ def search(input_text):
     print(result['organic_results'])
     df = pd.DataFrame(columns=['title','text'])
     
-
+    n_samples = 5
     for item in result['organic_results']:
         url = item['link']
         title=item['title']
@@ -40,6 +40,10 @@ def search(input_text):
         final_results.append(text)
         if len(p_list) > 1 and text != '':
             df.loc[len(df)] = {'title':title,'text':text}
+        if n_samples <= 0: 
+            break
+        n_samples -= 1
+        
     st.write(df)
 
 
