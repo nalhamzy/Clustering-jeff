@@ -38,7 +38,8 @@ def search(input_text):
             if len(p.text) > len(text):
                 text = p.text
         final_results.append(text)
-        df.loc[len(df)] = {'title':title,'text':text}
+        if len(p_list) > 1 and text != '':
+            df.loc[len(df)] = {'title':title,'text':text}
     st.write(df)
 
 
