@@ -120,7 +120,7 @@ def run(df,min_community_size):
     )
 def main():
     
-
+    ####
     df = []
     ### please select a file to load ####
     file_path = 'vision boards.xlsx'
