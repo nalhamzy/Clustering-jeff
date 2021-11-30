@@ -15,7 +15,11 @@ import pandas as pd
 import streamlit as st
 import numpy as np
 
-
+threshold = st.slider('Similarity Threshold:',0.0, 1.0,0.95,0.05)
+min_community_size = st.slider('Minimum size of a cluster:',1, 10,2,1)
+max_size = 50
+uploaded_file = st.file_uploader("Upload Files",type=['csv','xlsx'])
+sentences = st.text_area("Paste sentences here:", height=300)
 
 # Model used for computing sentence embeddings. 
 @st.cache(persist=True, allow_output_mutation=True)
@@ -29,42 +33,37 @@ def convert_df(df):
      # IMPORTANT: Cache the conversion to prevent computation on every rerun
      return df.to_csv().encode('utf-8')
 
-
-
-def main():
-    df = []
-    ### please select a file to load ####
-    file_path = 'vision boards.xlsx'
-    threshold = st.slider('Similarity Threshold:',0.0, 1.0,0.95,0.05)
-    min_community_size = st.slider('Minimum size of a cluster:',1, 10,2,1)
-    max_size = 50
-    uploaded_file = st.file_uploader("Upload Files",type=['csv','xlsx'])
-
-
-
-    sentences = st.text_area("Paste sentences here:", height=300)
-
-    if sentences != None:
-        sentences = sentences.splitlines()
-        df = pd.DataFrame(columns=['Questions'])
-        for sentence in sentences:
-            df = df.append({'Questions':sentence},ignore_index=True)
-
-    if uploaded_file is not None:
-            if "csv" in uploaded_file.name:
-                df = pd.read_csv(uploaded_file)
-            elif "xlsx" in uploaded_file.name:
-                df = pd.read_excel(uploaded_file)
-            st.write(df)
-    if uploaded_file == None and sentences == None or len(sentences) < 1:
-        return 
-    
-    
+    ## function used to extract the shortest sentence from the given cluster ##
+def get_shortest_title_cluster(cluster, corpus_sentences):
+        title = corpus_sentences[cluster[0]]
+        for idx in cluster:
+            if len(corpus_sentences[idx]) < len(title):
+                title = corpus_sentences[idx]
+        return title
+def get_median_title_cluster(cluster, corpus_sentences):
+        title_lens = [len(corpus_sentences[i]) for i in cluster]
+        
+        ##cluster [4 1 5 6 ]
+        ### len   [1 20 5 3]
+        ## idx    [1 2 3 4]
+        idx = np.argsort(title_lens)
+        midx = cluster[idx[(len(idx)//2)]]
+        #min = cluster[idx[0]]
+        #max = cluster[idx[-1]]
+        #print('start ')
+        #print("shortest %s"%corpus_sentences[min])
+        #print("longest %s"%corpus_sentences[max])
+        #print("median %s"%corpus_sentences[midx])
+        return corpus_sentences[midx]
+        
+def run(df,min_community_size):   
     
     ## remove null records 
-    
+    if len(df) == 0:
+        return
     df.dropna()
     model = load_model()
+    st.write('Loading .... ')
     corpus_sentences = set()
 
     ### read the questions from the dataframe ###
@@ -73,7 +72,7 @@ def main():
     for idx, row in df.iterrows():
         
         if type(row[column]) == type(''):
-            corpus_sentences.add(row[column])
+            corpus_sentences.add(row[column].strip())
 
     ### lists unique sentences ###
     corpus_sentences = list(corpus_sentences)
@@ -91,19 +90,6 @@ def main():
 
     print("Clustering done after {:.2f} sec".format(time.time() - start_time))
 
-    ## function used to extract the shortest sentence from the given cluster ##
-    def get_shortest_title_cluster(cluster, corpus_sentences):
-        title = corpus_sentences[cluster[0]]
-        for idx in cluster:
-            if len(corpus_sentences[idx]) < len(title):
-                title = corpus_sentences[idx]
-        return title
-    def get_median_title_cluster(cluster, corpus_sentences):
-        title_lens = [len(corpus_sentences[i]) for i in cluster]
-        title_lens = np.argsort(title_lens)
-        midx = int(len(title_lens)/2)
-        return corpus_sentences[midx]
-        
 
     ### prepare a new dataframe to store the results ###
     clusters_df = pd.DataFrame(columns=['Cluster','Question'])
@@ -132,6 +118,38 @@ def main():
         file_name='clusters.csv',
         mime='text/csv',
     )
+def main():
+    
+
+    df = []
+    ### please select a file to load ####
+    file_path = 'vision boards.xlsx'
+    global threshold 
+    global min_community_size 
+    global max_size 
+    global sentences
+
+    if sentences != None:
+        sentences = sentences.splitlines()
+        df = pd.DataFrame(columns=['Questions'])
+        for sentence in sentences:
+            df = df.append({'Questions':sentence},ignore_index=True)
+        if len(df) > 0:
+            st.write(df)
+            run(df,min_community_size)
+    if uploaded_file is not None:
+            if "csv" in uploaded_file.name:
+                df = pd.read_csv(uploaded_file)
+            elif "xlsx" in uploaded_file.name:
+                df = pd.read_excel(uploaded_file)
+            if len(df) > 0:
+                st.write(df)
+                run(df,min_community_size)
+    if uploaded_file == None and sentences == None or len(sentences) < 1:
+        return 
+    
+
+
 if __name__ == '__main__':
 	main()
 
