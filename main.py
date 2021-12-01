@@ -26,18 +26,24 @@ def search(input_text):
         print(key)
         #print(result[key])
 
-    print(result['organic_results'])
+    #print(result['organic_results'])
     df = pd.DataFrame(columns=['title','text'])
     
     n_samples = 5
+  
+    print(len(result['organic_results']))
     for item in result['organic_results']:
         url = item['link']
         title=item['title']
         response = get(url)
         html_soup = BeautifulSoup(response.text, 'html.parser')
         p_list = html_soup.find_all('p')[:10]
+        st.write("\n")
+        st.write("Website title: %s :"%title) 
         text = ''
         for p in p_list:
+
+            st.write('<p>' + p.text + '<\p>')
             if len(p.text) > len(text):
                 text = p.text
         final_results.append(text)
@@ -48,15 +54,8 @@ def search(input_text):
         n_samples -= 1
         
     st.write(df)
+    return df
 
-    csv = convert_df(df)
-
-    st.download_button(
-        label="Download data as CSV",
-        data=csv,
-        file_name='extracted_text.csv',
-        mime='text/csv',
-    ) 
 
 
 
@@ -65,5 +64,13 @@ def main():
     if st.button("Search"):
         if user_input != None:
             results = search(user_input)
+            csv = convert_df(results)
+
+            st.download_button(
+                label="Download data as CSV",
+                data=csv,
+                file_name='extracted_text.csv',
+                mime='text/csv',
+            ) 
 if __name__ == '__main__':
 	main()
