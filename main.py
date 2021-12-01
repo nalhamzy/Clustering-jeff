@@ -9,6 +9,9 @@ import numpy as np
 from bs4 import BeautifulSoup
 from requests import get
 
+
+def convert_df(df):
+    return df.to_csv().encode('utf-8')
 user_input = ''
 def search(input_text):
     search = GoogleSearch({
@@ -46,7 +49,14 @@ def search(input_text):
         
     st.write(df)
 
+    csv = convert_df(df)
 
+    st.download_button(
+        label="Download data as CSV",
+        data=csv,
+        file_name='extracted_text.csv',
+        mime='text/csv',
+    ) 
 
 
 
