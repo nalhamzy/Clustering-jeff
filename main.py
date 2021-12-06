@@ -11,12 +11,13 @@ import streamlit as st
 import numpy as np
 from bs4 import BeautifulSoup
 from requests import get
-from Questgen import main as qgen
 import re 
 import nltk
 nltk.download('punkt')
 from pprint import pprint
 import nltk
+from Questgen import main as qgen
+
 nltk.download('stopwords')
 
 def load_nltk():
