@@ -14,11 +14,12 @@ from requests import get
 import re 
 import nltk
 nltk.download('punkt')
+nltk.download('stopwords')
 from pprint import pprint
-import nltk
+
 from Questgen import main as qgen
 
-nltk.download('stopwords')
+#nltk.download('stopwords')
 
 def load_nltk():
     
@@ -97,7 +98,7 @@ def main():
                 mime='text/csv',
             ) 
 
-            qg = load_nltk()
+            
             for idx, row in results.iterrows():
                 payload = {
                     "input_text": row['text']
