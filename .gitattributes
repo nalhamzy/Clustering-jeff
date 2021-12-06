@@ -1,3 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 s2v_old filter=lfs diff=lfs merge=lfs -text
+._s2v_old filter=lfs diff=lfs merge=lfs -text
