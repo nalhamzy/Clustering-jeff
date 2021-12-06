@@ -13,6 +13,11 @@ from bs4 import BeautifulSoup
 from requests import get
 from Questgen import main as qgen
 import re 
+import nltk
+nltk.download('punkt')
+from pprint import pprint
+import nltk
+nltk.download('stopwords')
 
 def load_nltk():
     
