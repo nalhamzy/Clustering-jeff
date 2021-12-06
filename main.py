@@ -76,6 +76,8 @@ def search(input_text):
 
 
 def main():
+    qg = load_nltk()
+
     user_input = st.text_input("Search Text", ) 
     if st.button("Search"):
         if user_input != None:
@@ -95,7 +97,7 @@ def main():
                     "input_text": row['text']
                 }
                 output = qg.predict_shortq(payload)
-
                 st.write(output)
 if __name__ == '__main__':
 	main()
+ 
