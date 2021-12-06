@@ -1,13 +1,29 @@
+
+
 app_secret = 'e478f284e8aa736bc21fd8691ae7d08f14680d2e6a1fac7a8d6ad1f51e1b358f'
 from serpapi import GoogleSearch
 import os
 import csv
 import time
 import pandas as pd
+
 import streamlit as st
 import numpy as np
 from bs4 import BeautifulSoup
 from requests import get
+from Questgen import main as qgen
+import re 
+
+def load_nltk():
+    
+    qg= qgen.QGen()
+    return qg
+  
+no_paragraphs = st.slider('No. of paragraphs:',10, 500,10)
+
+def is_valid_sentence(input_text):
+    s  = re.search('(([A-Za-z]){2,}\s+.*){5}',input_text)
+    return s != None
 
 
 def convert_df(df):
@@ -44,8 +60,8 @@ def search(input_text):
         for p in p_list:
 
             st.write('<p>' + p.text + '<\p>')
-            if len(p.text) > len(text):
-                text = p.text
+            if is_valid_sentence(p.text):
+                text += p.text + ' '
         final_results.append(text)
         if len(p_list) > 1 and text != '':
             df.loc[len(df)] = {'title':title,'text':text}
@@ -72,5 +88,14 @@ def main():
                 file_name='extracted_text.csv',
                 mime='text/csv',
             ) 
+
+            qg = load_nltk()
+            for idx, row in results.iterrows():
+                payload = {
+                    "input_text": row['text']
+                }
+                output = qg.predict_shortq(payload)
+
+                st.write(output)
 if __name__ == '__main__':
 	main()
